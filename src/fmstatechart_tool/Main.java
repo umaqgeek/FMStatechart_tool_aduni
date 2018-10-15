@@ -30,7 +30,7 @@ public class Main {
                     if (parser.getCommandName().equals(CommandLineParser.GENERATE)) {
                         Model model = new Model();
                         if (parser.getCommandGenerate().dimacs) {
-                            model.loadFeatureModel(parser.getCommandGenerate().fmFile, model.getFeatureModelFormat().SPLOT);
+                            model.loadFeatureModel(parser.getCommandGenerate().fmFile);
                           } 
                         
                         model.setNbProductsToGenerate(parser.getCommandGenerate().nbProds);

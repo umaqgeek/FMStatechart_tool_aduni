@@ -35,7 +35,6 @@ public class ViewMenuBar extends JMenuBar implements Observer {
     private static final String HELP = "Help";
     private static final String LOAD_FEATURE_MODEL = "Load Feature Model (. xml files)";
     private static final String LOAD_STATECHART = "Load UML statechart (. xml file)";
-    private static final String LOAD_MATCH = "Match the Model Set!";
  //   private static final String LOAD_PRODUCTS_FM = "Load Products after Feature Model...";
     private static final String QUIT = "Quit";
 //    public static final String GENERATE = "Generate products";
@@ -49,10 +48,10 @@ public class ViewMenuBar extends JMenuBar implements Observer {
 //    public static final String GENERATION_TECHNIQUE = "Generation technique";
     private Model model;
     private JMenu file, execute, configuration, help, generationTechnique, prioritizationTechnique;
-    private JMenuItem loadFeatureModel, loadstatechart, loadMatch, loadProductsFM, quit,saveProducts, about, doc; 
+    private JMenuItem loadFeatureModel, loadstatechart, loadProductsFM, quit,saveProducts, about, doc; 
 //            generate, prioritize, coverage, stop, 
             
-    private ImageIcon loadFMIcon, loadStatechartIcon, loadMatchIcon, quitIcon, saveProductsIcon,
+    private ImageIcon loadFMIcon, loadStatechartIcon, quitIcon, saveProductsIcon,
             stopIcon
 //            , generateIcon, prioritizeIcon
             ;
@@ -60,7 +59,6 @@ public class ViewMenuBar extends JMenuBar implements Observer {
    // private List<JRadioButtonMenuItem> prioritizationTechniqueButtons = new ArrayList<JRadioButtonMenuItem>();
     private final URL urlLoadFM = getClass().getResource("icons/load_fm.png");
     private final URL urlLoadStatechart = getClass().getResource("icons/load_statecharticons.png");
-    private final URL urlLoadMatch = getClass().getResource("icons/load_does_not_rotate_440000.png");
     private final URL urlQuit = getClass().getResource("icons/exit.png");
     private final URL urlSaveProducts = getClass().getResource("icons/save_products.png");
 //    private final URL urlGenerate = getClass().getResource("icons/generate.png");
@@ -73,7 +71,6 @@ public class ViewMenuBar extends JMenuBar implements Observer {
         model.addObserver(this);
         loadFMIcon = new ImageIcon(urlLoadFM);
         loadStatechartIcon = new ImageIcon(urlLoadStatechart);
-        loadMatchIcon = new ImageIcon(urlLoadMatch);
         quitIcon = new ImageIcon(urlQuit);
         saveProductsIcon = new ImageIcon(urlSaveProducts);
   //      generateIcon = new ImageIcon(urlGenerate);
@@ -83,7 +80,6 @@ public class ViewMenuBar extends JMenuBar implements Observer {
         loadFeatureModel.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, ActionEvent.CTRL_MASK));
         loadstatechart = new JMenuItem(LOAD_STATECHART, loadStatechartIcon);
         loadstatechart.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, ActionEvent.CTRL_MASK));
-        loadMatch = new JMenuItem(LOAD_MATCH, loadMatchIcon);
 //        loadProductsFM = new JMenuItem(LOAD_PRODUCTS_FM);
  //       loadProductsFM.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M, ActionEvent.CTRL_MASK));
         quit = new JMenuItem(QUIT, quitIcon);
@@ -125,9 +121,8 @@ public class ViewMenuBar extends JMenuBar implements Observer {
 //        }
         file = new JMenu(FILE);
         file.setMnemonic(KeyEvent.VK_F);
-        file.add(loadstatechart);
         file.add(loadFeatureModel);
-        file.add(loadMatch);
+        file.add(loadstatechart);
  //       file.add(loadProductsFM);
         file.addSeparator();
         file.add(quit);
@@ -165,10 +160,6 @@ public class ViewMenuBar extends JMenuBar implements Observer {
 
     public JMenuItem getLoadProducts() {
         return loadstatechart;
-    }
-
-    public JMenuItem getLoadMatch() {
-        return loadMatch;
     }
     
     public JMenuItem getLoadProductsFM() {
@@ -244,7 +235,6 @@ public class ViewMenuBar extends JMenuBar implements Observer {
  //               stop.setEnabled(model.isRunning());
                 loadFeatureModel.setEnabled(!model.isRunning());
                 loadstatechart.setEnabled(!model.isRunning());
-                loadMatch.setEnabled(!model.isRunning());
  //               execute.setEnabled(generate.isEnabled() || prioritize.isEnabled() || stop.isEnabled());
             }
         };

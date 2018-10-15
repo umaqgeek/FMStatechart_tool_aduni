@@ -24,7 +24,6 @@ import fmstatechart_tool.GUI.Controllers.controllerDisplayDocumentation;
 import fmstatechart_tool.GUI.Controllers.controllerloadStatechart;
 import fmstatechart_tool.GUI.Controllers.controllerCloseEditConstraints;
 import fmstatechart_tool.GUI.Controllers.ControllerDisplayEditConstraints;
-import fmstatechart_tool.GUI.Controllers.ControllerMatchSet;
 import fmstatechart_tool.GUI.ViewMenuBar;
 import fmstatechart_tool.GUI.ViewFeatures;
 import fmstatechart_tool.GUI.ViewToolBar;
@@ -36,24 +35,22 @@ import fmstatechart_tool.GUI.ViewProductInformation;
 import fmstatechart_tool.GUI.viewStatusBar;
 import fmstatechart_tool.GUI.ViewConstraints;
 import fmstatechart_tool.GUI.ViewEditConstraints;
-import java.util.List;
-
 /**
  *
  * @author user
  */
 public class Home extends JFrame implements Observer {
 
-    public static final Color BLUE_COLOR = new Color(232, 239, 247);
+     public static final Color BLUE_COLOR = new Color(232, 239, 247);
     public static final int D_WIDTH = 1350, D_HEIGHT = 750;
     public static final String TITLE = "State Chart Test Generation Tool";
     private static final String QUIT_MESSAGE = "Quit fmstatechart_tool will interrupt any running task. Do you want to continue ?";
     private static final String QUIT_TITLE = "Quit fmstatechart_tool";
     private static final String FILE_CHOOSER_FEATURE_MODEL_TITLE = "Load a Feature Model";
-    private static final String FILE_CHOOSER_STATECHART_MODEL_TITLE = "Load a Statechart Model";
+     private static final String FILE_CHOOSER_STATECHART_MODEL_TITLE = "Load a Statechart Model";
     private static final String FILE_CHOOSER_PRODUCTS_TITLE = "Load Products";
     private static final String FILE_SAVER_PRODUCTS_TITLE = "Save Products";
-    //   private static final String COVERAGE_TITLE = "Pairwise coverage";
+ //   private static final String COVERAGE_TITLE = "Pairwise coverage";
     private final FileNameExtensionFilter featureModelFileFilter = new FileNameExtensionFilter("SPLOT Feature Models (.xml)", "xml");
     private final FileNameExtensionFilter StatechartFileFilter = new FileNameExtensionFilter("EA STATECHART files (.xml)", "xml");
     private static final String TAB_FEATURE_MODEL = "Feature Model";
@@ -70,7 +67,6 @@ public class Home extends JFrame implements Observer {
     private ControllerQuit controllerQuit;
     private ControllerLoadFeatureModel controllerLoadFeatureModel;
     private controllerloadStatechart controllerloadStatechart;
-    private ControllerMatchSet controllerMatchSet;
 //    private ControllerSaveProducts controllerSaveProducts;
 //    private ControllerGenerationTechnique controllerGenerationTechnique;
 //    private ControllerPrioritizationTechnique controllerPrioritizationTechnique;
@@ -94,26 +90,24 @@ public class Home extends JFrame implements Observer {
     private ViewAbout ViewAbout;
     private viewFeatureModelInformation viewFeatureModelInformation;
 //    private ViewConfigurationGeneration viewConfigurationGeneration;
-    private viewProducts viewProducts;
-    private ViewProductInformation viewProductInformation;
+    private  viewProducts viewProducts;
+    private  ViewProductInformation viewProductInformation;
     private JPanel content, background;
     private ViewDocumentation viewDocumentation;
     private ViewEditConstraints viewEditConstraints;
-    
-    public static List<String> Global_StateChartList;
 
     public Home() {
         super(TITLE);
         model = new Model();
         model.addObserver(this);
-        new Thread(new Runnable() {
+        new Thread(new Runnable(){
 
             @Override
             public void run() {
-                viewDocumentation = ViewDocumentation.getInstance();
-                viewDocumentation.setLocationRelativeTo(Home.this);
+              viewDocumentation = ViewDocumentation.getInstance();
+              viewDocumentation.setLocationRelativeTo(Home.this);
             }
-
+            
         }).start();
         ViewAbout = new ViewAbout(this);
         viewMenuBar = new ViewMenuBar(model);
@@ -129,7 +123,6 @@ public class Home extends JFrame implements Observer {
         controllerQuit = new ControllerQuit(model, this);
         controllerLoadFeatureModel = new ControllerLoadFeatureModel(model, this);
         controllerloadStatechart = new controllerloadStatechart(model, this);
-        controllerMatchSet = new ControllerMatchSet(model, this);
 //        controllerLoadProductsFM = new controllerLoadProductsFM(model, this);
 //        controllerDisplayAbout = new ControllerDisplayAbout(this);
         controllerCloseAbout = new ControllerCloseAbout(this);
@@ -140,14 +133,13 @@ public class Home extends JFrame implements Observer {
 //        controllerPrioritizeProducts = new ControllerPrioritizeProducts(model, this);
         controllerDisplayDocumentation = new controllerDisplayDocumentation(this);
         controllerDisplayEditConstraints = new ControllerDisplayEditConstraints(this);
-        controllerCloseEditConstraints = new controllerCloseEditConstraints(this);
+        controllerCloseEditConstraints =  new controllerCloseEditConstraints(this);
 //        controllerRemoveConstraint = new ControllerRemoveConstraint(model);
-        viewEditConstraints.getCloseButton().addActionListener(controllerCloseEditConstraints);
+        viewEditConstraints.getCloseButton().addActionListener(controllerCloseEditConstraints );
         ViewAbout.getCloseButton().addActionListener(controllerCloseAbout);
-        viewMenuBar.getQuit().addActionListener(controllerQuit);
-        viewMenuBar.getLoadFeatureModel().addActionListener(controllerLoadFeatureModel);
-        viewMenuBar.getLoadProducts().addActionListener(controllerloadStatechart);
-        viewMenuBar.getLoadMatch().addActionListener(controllerMatchSet);
+          viewMenuBar.getQuit().addActionListener(controllerQuit);
+          viewMenuBar.getLoadFeatureModel().addActionListener(controllerLoadFeatureModel);
+          viewMenuBar.getLoadProducts().addActionListener(controllerloadStatechart);
 //        viewMenuBar.getLoadProductsFM().addActionListener(controllerLoadProductsFM);
 //        viewMenuBar.getAbout().addActionListener(controllerDisplayAbout);
 //        viewMenuBar.getGenerate().addActionListener(controllerViewConfigurationGeneration);
@@ -167,7 +159,6 @@ public class Home extends JFrame implements Observer {
         viewToolBar.getQuit().addActionListener(controllerQuit);
         viewToolBar.getLoadFM().addActionListener(controllerLoadFeatureModel);
         viewToolBar.getLoadStatechart().addActionListener(controllerloadStatechart);
-        viewToolBar.getLoadMatch().addActionListener(controllerMatchSet);
 //        viewToolBar.getGenerate().addActionListener(controllerViewConfigurationGeneration);
 //        viewToolBar.getSaveProducts().addActionListener(controllerSaveProducts);
 //        viewToolBar.getPrioritize().addActionListener(controllerPrioritizeProducts);
@@ -179,12 +170,13 @@ public class Home extends JFrame implements Observer {
         featureModelChooser.setAcceptAllFileFilterUsed(false);
         featureModelChooser.addChoosableFileFilter(featureModelFileFilter);
         featureModelChooser.setDialogTitle(FILE_CHOOSER_FEATURE_MODEL_TITLE);
-
+        
         statechartModelChooser = new JFileChooser();
         statechartModelChooser.setMultiSelectionEnabled(false);
         statechartModelChooser.setAcceptAllFileFilterUsed(false);
         statechartModelChooser.addChoosableFileFilter(StatechartFileFilter);
         statechartModelChooser.setDialogTitle(FILE_CHOOSER_STATECHART_MODEL_TITLE);
+        
 
         Home.this.add(viewStatusBar, BorderLayout.SOUTH);
         content = new JPanel(new BorderLayout());
@@ -194,7 +186,7 @@ public class Home extends JFrame implements Observer {
         background = new JPanel(new GridLayout(1, 1));
         background.setBorder(BorderFactory.createMatteBorder(1, 0, 1, 0, new Color(172, 168, 153)));
         background.setBackground(Color.white);
-
+ 
         add(background, BorderLayout.CENTER);
 
         setSize(D_WIDTH, D_HEIGHT);
@@ -202,11 +194,13 @@ public class Home extends JFrame implements Observer {
         setLocationRelativeTo(getParent());
         setVisible(true);
 
-    }
 
+    }
+    
 //    public void displayCoverage(String cov){
 //        JOptionPane.showMessageDialog(this, cov, COVERAGE_TITLE, JOptionPane.INFORMATION_MESSAGE);
 //    }
+
     public void displayDocumentation() {
         SwingUtilities.invokeLater(new Runnable() {
 
@@ -236,14 +230,17 @@ public class Home extends JFrame implements Observer {
                 break;
         }
 
+
         return null;
     }
 
     public File displayFileSaver() {
 
+
         if (productsSaver.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
             return productsSaver.getSelectedFile();
         }
+
 
         return null;
     }
@@ -251,49 +248,52 @@ public class Home extends JFrame implements Observer {
     @Override
     public void update(Observable o, final Object arg) {
         Runnable code;
-        code = new Runnable() {
-
-            @Override
-            public void run() {
-                if (arg != null) {
-                    remove(background);
-                    add(content, BorderLayout.CENTER);
-                    viewStatusBar.addSeparator();
-                    if (model.getSolver() == null) {
-                        viewFeatureModelInformation.setVisible(false);
-                        viewConstraints.setVisible(false);
-                        viewFeatures.setVisible(false);
-                        content.add(viewProducts, BorderLayout.CENTER);
-                    } else {
-                        content.add(viewConstraints, BorderLayout.EAST);
-                        content.add(viewFeatures, BorderLayout.CENTER);
-                        content.add(viewFeatureModelInformation, BorderLayout.NORTH);
+         code = new Runnable() {
+             
+             @Override
+             public void run() {
+                 if (arg != null) {
+                     remove(background);
+                     add(content, BorderLayout.CENTER);
+                     viewStatusBar.addSeparator();
+                     if ("".equals(model.getFeatureModelFormat())) {
+                         viewFeatureModelInformation.setVisible(false);
+                         viewConstraints.setVisible(false);
+                         viewFeatures.setVisible(false);
+                         content.add(viewProducts, BorderLayout.CENTER);
+                     } else {
+                         content.add(viewConstraints, BorderLayout.EAST);
+                         content.add(viewFeatures, BorderLayout.CENTER);
+                         content.add(viewFeatureModelInformation, BorderLayout.NORTH);
                          //content.add(viewProductInformation, BorderLayout.NORTH);
-                        //content.add(viewProducts, BorderLayout.CENTER);
-                        viewFeatureModelInformation.setVisible(true);
-                        viewConstraints.setVisible(true);
-                        viewFeatures.setVisible(true);
+                         //content.add(viewProducts, BorderLayout.CENTER);
+                         viewFeatureModelInformation.setVisible(true);
+                         viewConstraints.setVisible(true);
+                         viewFeatures.setVisible(true);
                          //viewProducts.setVisible(true);
-                        //viewProductInformation.setVisible(true);
-                    }
-
-                    validate();
-                    SwingUtilities.updateComponentTreeUI(Home.this);
-
-                }
-
-                if ("xml".equals(model.getStateChartFormat())) {
-                    viewStatusBar.addSeparator();
-                    content.add(viewProductInformation, BorderLayout.NORTH);
-                    content.add(viewProducts, BorderLayout.CENTER);
-                    viewProducts.setVisible(true);
-                    viewProductInformation.setVisible(true);
-                } else {
-                    displayError("Error while loading products", "Incorrect products file");
-                }
-
-            }
-        };
+                         //viewProductInformation.setVisible(true);
+                     }
+                     
+                     validate();
+                     SwingUtilities.updateComponentTreeUI(Home.this);
+                     
+                 }
+                 
+                 if ("xml".equals(model.getStateChartFormat()))
+                 {
+                     viewStatusBar.addSeparator();
+                     content.add(viewProductInformation, BorderLayout.NORTH);
+                     content.add(viewProducts, BorderLayout.CENTER);
+                     viewProducts.setVisible(true);
+                     viewProductInformation.setVisible(true);
+                 }
+                 else
+                 {
+                     displayError("Error while loading products", "Incorrect products file");
+                 }
+                 
+             }
+         };
         if (SwingUtilities.isEventDispatchThread()) {
             code.run();
         } else {
@@ -315,7 +315,7 @@ public class Home extends JFrame implements Observer {
             SwingUtilities.invokeLater(code);
         }
     }
-
+    
     public void displayViewEditConstraints(final boolean display) {
         Runnable code = new Runnable() {
 
@@ -349,8 +349,8 @@ public class Home extends JFrame implements Observer {
     public void displayError(String title, String message) {
         JOptionPane.showMessageDialog(this, message, title, JOptionPane.ERROR_MESSAGE);
     }
-
-    public void displayViewStatechart(final boolean display) {
+    
+        public void displayViewStatechart(final boolean display) {
         Runnable code = new Runnable() {
 
             @Override

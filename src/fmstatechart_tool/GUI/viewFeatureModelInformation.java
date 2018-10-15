@@ -125,9 +125,10 @@ public class viewFeatureModelInformation extends JPanel implements Observer {
 
             @Override
             public void run() {
-                if (arg != null && model.getSolver() != null) {
+                if ("xml".equals(model.getFeatureModelFormat())) {
                     name.setText(model.getFeatureModelName());
-                    format.setText(model.getFeatureModelFormat().name());
+                    format.setText(model.getFeatureModelFormat());
+                   // System.out.println(model.getFeatureModelFormat());
                     constraints.setText(""+model.getFeatureModelConstraintsString().size());
                     features.setText(""+model.getFeaturesList().size());
                     core.setText("" + model.getCoreFeatures().size());

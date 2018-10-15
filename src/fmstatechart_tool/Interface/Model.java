@@ -81,7 +81,7 @@ public class Model extends Observable {
 
     public static enum FeatureModelFormat {
 
-        SPLOT
+        xml
     };
 
     public static enum stateChartFormat {
@@ -92,7 +92,7 @@ public class Model extends Observable {
     private ISolver solverIterator;
     private List<Integer> featuresIntList;
     private List<Integer> StateIntList;
-    private List<String> featuresList;
+    static List<String> featuresList;
     static List<String> StateChartList;
     private Map<String, Integer> namesToFeaturesInt;
     private List<String> featureModelConstraints;
@@ -104,6 +104,7 @@ public class Model extends Observable {
     private String featureModelName;
     private String statechartModelName;
     private String FileExtension;
+    private String FileExtension1;
     private boolean running, indeterminate;
     private String globalAction, currentAction;
     private List<String> coreFeatures, deadFeatures, state, transition;
@@ -155,10 +156,6 @@ public class Model extends Observable {
      *
      * @return the format of the current feature model.
      */
-    public FeatureModelFormat getFeatureModelFormat() {
-        return featureModelFormat;
-    }
-
     /**
      * Returns the name of the currently loaded feature model.
      *
@@ -182,7 +179,7 @@ public class Model extends Observable {
      *
      * @return a list of features of the feature model.
      */
-    public List<String> getFeaturesList() {
+    public static List<String> getFeaturesList() {
         return featuresList;
     }
 
@@ -510,154 +507,49 @@ public class Model extends Observable {
      * @param format the format of the feature model.
      * @throws Exception if the file format is incorrect.
      */
-    public void loadFeatureModel(String filePath, FeatureModelFormat format) throws Exception {
+    public void loadFeatureModel(String inFile1) throws Exception {
         setRunning(true);
         setIndeterminate(true);
-        setGlobalAction(GLOBAL_ACTION_LOAD_FM);
-        setCurrentAction(CURRENT_ACTION_LOAD_CONSTRAINTS);
-        featureModelFormat = format;
-        clean();
-        featureModelName = new File(filePath).getName();
+        setGlobalAction(GLOBAL_ACTION_LOAD_PRODUCTS);
+
+        featureModelName = new File(inFile1).getName();
+        //System.out.println(featureModelName);
         featureModelName = featureModelName.substring(0, featureModelName.lastIndexOf("."));
-        // products = null;
-        fmPath = filePath;
-        switch (format) {
+        int i = inFile1.lastIndexOf('.');
+        if (i > 0) {
+            FileExtension1 = inFile1.substring(i + 1);
 
-            case SPLOT:
-                FeatureModel fm = new XMLFeatureModel(filePath, XMLFeatureModel.USE_VARIABLE_NAME_AS_ID);
-                fm.loadModel();
-                ReasoningWithSAT reasonerSAT = new FMReasoningWithSAT(solverName, fm, SAT_TIMEOUT);
-                reasonerSAT.init();
-                solver = (Solver) reasonerSAT.getSolver();
-                String[] features = reasonerSAT.getVarIndex2NameMap();
-                for (int i = 0; i < features.length; i++) {
-                    String featureName = features[i];
-                    featuresList.add(featureName);
-                    int n = i + 1;
-                    featuresIntList.add(n);
-                    namesToFeaturesInt.put(featureName, n);
-                }
-                System.out.println(featuresList);
-                System.out.println(featuresIntList);
-                System.out.println(namesToFeaturesInt);
-
-                break;
         }
 
-        setCurrentAction(CURRENT_ACTION_EXTRACT_FEATURES);
-        setIndeterminate(false);
-        setProgress(0);
-        int n = 1;
-        int featuresCount = featuresIntList.size();
-        while (n <= featuresCount) {
-            featuresIntList.add(-n);
-            n++;
-            setProgress((int) (n / (double) featuresCount * 100));
-        }
+        try {
+            BufferedReader in = new BufferedReader(new FileReader(inFile1));
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            Document doc = dBuilder.parse(inFile1);
+            NodeList nList = doc.getElementsByTagName("feature_tree");
+        //  NodeList n = nList.item(0).getFirstChild().getTextContent();
+            // int num = nList.getLength();
+            for (int temp = 0; temp < nList.getLength(); temp++) {
+                Node NNODE = nList.item(temp);
+                // System.out.println("\nCurrent Element :" + NNODE.getNodeName());
+                if (NNODE.getNodeType() == Node.ELEMENT_NODE) {
+                    Element eElement = (Element) NNODE;
+                      //System.out.println(eElement.getFirstChild().getTextContent());
 
-        if (solver != null) {
-            solver.setTimeout(SAT_TIMEOUT);
-        }
-
-        solver.setOrder(order);
-        solverIterator = new ModelIterator(solver);
-        solverIterator.setTimeoutMs(ITERATOR_TIMEOUT);
-
-        setCurrentAction(CURRENT_ACTION_EXTRACT_CONSTRAINTS);
-        setProgress(0);
-        int nConstraints = 0;
-        switch (format) {
-
-            case SPLOT:
-                setIndeterminate(true);
-                FeatureModel fm = new XMLFeatureModel(filePath, XMLFeatureModel.USE_VARIABLE_NAME_AS_ID);
-                fm.loadModel();
-                ReasoningWithSAT reasonerSAT = new FMReasoningWithSAT(solverName, fm, SAT_TIMEOUT);
-                reasonerSAT.init();
-                CNFFormula formula = fm.FM2CNF();
-                nConstraints = formula.getClauses().size();
-                setIndeterminate(false);
-                int j = 0;
-
-                for (CNFClause clause : formula.getClauses()) {
-
-                    String cons = "";
-
-                    for (int i = 0; i < clause.getLiterals().size(); i++) {
-                        int signal = clause.getLiterals().get(i).isPositive() ? 1 : -1;
-                        int varID = reasonerSAT.getVariableIndex(clause.getLiterals().get(i).getVariable().getID());
-
-                        String f = featuresList.get(varID - 1);
-                        if (signal < 0) {
-                            f = NOT + f;
-                        }
-
-                        if (cons.equals("")) {
-                            cons += f;
-                        } else {
-                            cons += OR + f;
-                        }
-
-                    }
-                    featureModelConstraints.add(cons);
-                    featureModelConstraintsString.add(cons);
-                    setProgress((int) ((j + 1) / (double) nConstraints * 100));
-                    j++;
+		//System.out.println(NNODE.getFirstChild().getTextContent());
+                    //NodeList nListm = nListm.item(0).getFirstChild().getTextContent();
+                    //    Element node3 = (Element) nList.item(0);
+                    listAllFeatures(eElement);
+                    //  System.out.println(node3);
                 }
 
-                break;
-        }
-
-//        for (int i = 0; i < nConstraints; i++) {
-//            IConstr constraint = solver.getIthConstr(i);
-//            if (constraint != null) {
-//                featureModelConstraints.add(constraint);
-//                StringBuilder stringConstraint = new StringBuilder();
-//                int size = constraint.size();
-//                for (int j = 0; j < size; j++) {
-//                    boolean negative;
-//                    int literal = constraint.get(j) / 2;
-//                    negative = constraint.get(j) % 2 == 1;
-//                    String feature = featuresList.get(literal - 1);
-//                    if (negative) {
-//                        stringConstraint.append(NOT);
-//                    }
-//                    stringConstraint.append(feature);
-//                    if (j < size - 1) {
-//                        stringConstraint.append(OR);
-//                    }
-//                    
-//                }
-//                featureModelConstraintsString.add(stringConstraint.toString());
-//            }
-//            
-//            setProgress((int) ((i + 1) / (double) nConstraints * 100));
-//        }
-        setCurrentAction(CURRENT_ACTION_FINDING_CORE_DEAD_FEATURES);
-        setProgress(0);
-        n = 0;
-        IVecInt vector = new VecInt();
-        // Core and dead features
-        for (String feature : featuresList) {
-            int f = namesToFeaturesInt.get(feature);
-            vector.clear();
-            vector.push(-f);
-            if (!solver.isSatisfiable(vector)) {
-                coreFeatures.add(feature);
             }
-
-            vector.clear();
-            vector.push(f);
-            if (!solver.isSatisfiable(vector)) {
-                deadFeatures.add(feature);
-            }
-            n++;
-            setProgress((int) ((n) / (double) featuresCount * 100));
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-
         setRunning(false);
         setChanged();
-        notifyObservers(featureModelConstraints);
+        notifyObservers(this);
     }
 
     public void removeConstraint(int i) {
@@ -666,101 +558,6 @@ public class Model extends Observable {
         notifyObservers(featureModelConstraints);
     }
 
-    /**
-     * Generate products.
-     *
-     * @throws Exception if an error occurs during the generation.
-     */
-//    public void generateProducts() throws Exception {
-//        setRunning(true);
-//        setIndeterminate(false);
-//        setGlobalAction(GLOBAL_ACTION_GENERATING_PRODUCTS);
-//        products = generationTechnique.generateProducts(this, nbProductsToGenerate, generationTimeMSAllowed, prioritizationTechnique);
-//        setRunning(false);
-//        setChanged();
-//        notifyObservers();
-//    }
-//
-//    /**
-//     * Prioritize products.
-//     * @throws Exception if an error occur while prioritizing the products.
-//     */
-//    public void prioritizeProducts() throws Exception {
-//        setRunning(true);
-//        setIndeterminate(false);
-//        setGlobalAction(GLOBAL_ACTION_PRIORITIZING_PRODUCTS);
-//        products = prioritizationTechnique.prioritize(this, products);
-//        setRunning(false);
-//        setChanged();
-//        notifyObservers();
-//    }
-    /**
-     * Compute the valid pairs of the FM.
-     *
-     */
-//    private Set<TSet> computeValidPairs() throws TimeoutException {
-//        Set<TSet> pairs = new HashSet<TSet>();
-//
-//        List<Integer> extendedFeatures = new ArrayList<Integer>(featuresIntList.size() * 2);
-//
-//        for (Integer i : featuresIntList) {
-//            extendedFeatures.add(i);
-//            extendedFeatures.add(-i);
-//        }
-//
-//        int size = extendedFeatures.size();
-//
-//        Util.nCk(size, 2, pairs, extendedFeatures, true, solver);
-//
-//        return pairs;
-//    }
-//
-//    /**
-//     * Compute the pairwise coverage of the products.
-//     * @return the pairwise coverage of the products.
-//     */
-//    public String getPairwiseCoverage() throws TimeoutException {
-//        setRunning(true);
-//        setIndeterminate(false);
-//        setGlobalAction(GLOBAL_ACTION_COVERAGE);
-//        setCurrentAction(CURRENT_ACTION_PRODUCT_PAIRS);
-//
-//        Set<TSet> productsPairs = new HashSet<TSet>();
-//
-//        int i = 0;
-//        for (Product p : products) {
-//            setCurrentAction(CURRENT_ACTION_PRODUCT_PAIRS + " product " + i);
-//            productsPairs.addAll(p.getCoveredPairs());
-//            setProgress((int) (((double) i / (double) products.size()) * 100.0));
-//            i++;
-//        }
-//
-//        int d1 = productsPairs.size();
-//        int d2 =  0;
-//        double cov = 0;
-//        if (solver != null) {
-//
-//            setIndeterminate(true);
-//            setCurrentAction(CURRENT_ACTION_MODEL_PAIRS);
-//            d2 = computeValidPairs().size();
-//
-//
-//            cov = (double) d1 / d2 * 100.0;
-//        }
-//        else
-//            cov = d1;
-//        setRunning(false);
-//        if (solver != null)
-//        return "Number of valid pairs of the model: " + d2 + "\nNumber of pairs covered by the products: " + d1 + "\n\nCoverage: " + new DecimalFormat("#.##").format(cov) + "%";
-//        else
-//            return "Number of pairs covered by the products: " + d1 ;
-//    }
-//
-//    /**
-//     * Return the type of a given feature (i.e. core, dead or free)
-//     * @param feature the name of the feature.
-//     * @return a String representing the type of this feature (core, dead or free).
-//     */
     public String getFeatureType(String feature) {
         if (coreFeatures.contains(feature)) {
             return CORE_FEATURE;
@@ -800,20 +597,18 @@ public class Model extends Observable {
                     }
 
                 } else {
-                    switch (featureModelFormat) {
 
-                        case SPLOT:
-                            FeatureModel fm = new XMLFeatureModel(fmPath, XMLFeatureModel.USE_VARIABLE_NAME_AS_ID);
-                            fm.loadModel();
-                            ReasoningWithSAT reasonerSAT = new FMReasoningWithSAT(solverName, fm, SAT_TIMEOUT);
-                            reasonerSAT.init();
-                            solver = (Solver) reasonerSAT.getSolver();
-                            break;
-                    }
-                    solver.setTimeout(SAT_TIMEOUT);
-                    solver.setOrder(order);
-                    solverIterator = new ModelIterator(solver);
-                    solverIterator.setTimeoutMs(ITERATOR_TIMEOUT);
+                    FeatureModel fm = new XMLFeatureModel(fmPath, XMLFeatureModel.USE_VARIABLE_NAME_AS_ID);
+                    fm.loadModel();
+                    ReasoningWithSAT reasonerSAT = new FMReasoningWithSAT(solverName, fm, SAT_TIMEOUT);
+                    reasonerSAT.init();
+                    solver = (Solver) reasonerSAT.getSolver();
+                    break;
+
+                  //  solver.setTimeout(SAT_TIMEOUT);
+                    //  solver.setOrder(order);
+                    // solverIterator = new ModelIterator(solver);
+                    // solverIterator.setTimeoutMs(ITERATOR_TIMEOUT);
                 }
 
             } catch (Exception e) {
@@ -964,7 +759,7 @@ public class Model extends Observable {
             if (attrName.equals("name")) {
 
                 StateChartList.add(attrValue);
-                System.out.println(StateChartList);
+                //System.out.println(StateChartList);
             }
 
         }
@@ -990,6 +785,22 @@ public class Model extends Observable {
             }
 
         }
+    }
+
+    public static void listAllFeatures(Element eElement) {
+        // System.out.println("hh " + element.getNodeName());
+        NamedNodeMap attributes = eElement.getAttributes();
+        // get a map containing the attributes of this node
+        Node carsNode = eElement.getFirstChild();
+      // NodeList carsNodeList = eElement.getFirstChild().getTextContent();
+        //System.out.println(carsNode);
+        // get the number of nodes in this map
+        String numAttrs = carsNode.getNodeValue();
+        //String[] output = numAttrs.split(":");
+        //System.out.println(numAttrs);
+        featuresList.add(numAttrs);
+        // System.out.println(eElement.getFirstChild().getTextContent())
+
     }
 
 //    
@@ -1033,6 +844,10 @@ public class Model extends Observable {
     public String getStateChartFormat() {
         return FileExtension;
 
+    }
+
+    public String getFeatureModelFormat() {
+        return FileExtension1;
     }
 
     public List<Integer> getStateChartIntList() {
