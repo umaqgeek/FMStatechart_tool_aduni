@@ -18,6 +18,8 @@ import java.util.Observable;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.sat4j.core.VecInt;
 import org.sat4j.minisat.SolverFactory;
 import org.sat4j.minisat.core.IOrder;
@@ -50,6 +52,8 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Attr;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.ParserConfigurationException;
+import org.xml.sax.SAXException;
 
 public class Model extends Observable {
 
@@ -92,7 +96,7 @@ public class Model extends Observable {
     private ISolver solverIterator;
     private List<Integer> featuresIntList;
     private List<Integer> StateIntList;
-    private List<String> featuresList;
+    private static List<String> featuresList;
     static List<String> StateChartList;
     private Map<String, Integer> namesToFeaturesInt;
     private List<String> featureModelConstraints;
@@ -449,7 +453,6 @@ public class Model extends Observable {
 //    public GenerationTechnique getGenerationTechnique() {
 //        return generationTechnique;
 //    }
-
     /**
      * Specifies the generation technique used by the tool.
      *
@@ -537,9 +540,6 @@ public class Model extends Observable {
                     featuresIntList.add(n);
                     namesToFeaturesInt.put(featureName, n);
                 }
-                System.out.println(featuresList);
-                System.out.println(featuresIntList);
-                System.out.println(namesToFeaturesInt);
 
                 break;
         }
@@ -658,6 +658,114 @@ public class Model extends Observable {
         setRunning(false);
         setChanged();
         notifyObservers(featureModelConstraints);
+    }
+    
+    public void loadFeatureModel2(String inFile1) throws Exception {
+        setRunning(true);
+        setIndeterminate(true);
+        setGlobalAction(GLOBAL_ACTION_LOAD_PRODUCTS);
+
+        featureModelName = new File(inFile1).getName();
+        //System.out.println(featureModelName);
+        featureModelName = featureModelName.substring(0, featureModelName.lastIndexOf("."));
+        int i = inFile1.lastIndexOf('.');
+//        if (i > 0) {
+//            FileExtension1 = inFile1.substring(i + 1);
+//        }
+
+        try {
+            BufferedReader in = new BufferedReader(new FileReader(inFile1));
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            Document doc = dBuilder.parse(inFile1);
+            NodeList nList = doc.getElementsByTagName("feature_tree");
+        //  NodeList n = nList.item(0).getFirstChild().getTextContent();
+            // int num = nList.getLength();
+            for (int temp = 0; temp < nList.getLength(); temp++) {
+                Node NNODE = nList.item(temp);
+                // System.out.println("\nCurrent Element :" + NNODE.getNodeName());
+                if (NNODE.getNodeType() == Node.ELEMENT_NODE) {
+                    Element eElement = (Element) NNODE;
+                      //System.out.println(eElement.getFirstChild().getTextContent());
+
+		//System.out.println(NNODE.getFirstChild().getTextContent());
+                    //NodeList nListm = nListm.item(0).getFirstChild().getTextContent();
+                    //    Element node3 = (Element) nList.item(0);
+                    listAllFeatures(eElement, temp);
+                    //  System.out.println(node3);
+                }
+
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        setRunning(false);
+        setChanged();
+        notifyObservers(this);
+    }
+
+    public void loadMatchSet(Home view) {
+        System.out.println("inside loadMatchSet");
+        File selected = view.displayFileChooser(Home.FileType.FEATURE_MODEL);
+        if (selected != null) {
+            System.out.println("inside if(selected...");
+            try {
+                final String inFile1 = selected.getPath();
+                System.out.println("before buffer");
+                BufferedReader in = new BufferedReader(new FileReader(inFile1));
+                DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+                DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+                Document doc = dBuilder.parse(inFile1);
+                NodeList nList = doc.getElementsByTagName("feature_tree");
+            //  NodeList n = nList.item(0).getFirstChild().getTextContent();
+                // int num = nList.getLength();
+                System.out.println("before loop");
+                for (int temp = 0; temp < nList.getLength(); temp++) {
+                    Node NNODE = nList.item(temp);
+                    // System.out.println("\nCurrent Element :" + NNODE.getNodeName());
+                    if (NNODE.getNodeType() == Node.ELEMENT_NODE) {
+                        Element eElement = (Element) NNODE;
+                      //System.out.println(eElement.getFirstChild().getTextContent());
+
+                    //System.out.println(NNODE.getFirstChild().getTextContent());
+                        //NodeList nListm = nListm.item(0).getFirstChild().getTextContent();
+                        //    Element node3 = (Element) nList.item(0);
+                        listAllFeatures(eElement, temp);
+                        //  System.out.println(node3);
+                    }
+
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (SAXException ex) {
+                ex.printStackTrace();
+            } catch (ParserConfigurationException ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+    
+    public static void listAllFeatures(Element eElement, int index) {
+        // System.out.println("hh " + element.getNodeName());
+        NamedNodeMap attributes = eElement.getAttributes();
+        // get a map containing the attributes of this node
+        Node carsNode = eElement.getFirstChild();
+        // NodeList carsNodeList = eElement.getFirstChild().getTextContent();
+        //System.out.println(carsNode);
+        // get the number of nodes in this map
+        String numAttrs = carsNode.getNodeValue();
+        String[] outputs = numAttrs.split(":");
+        System.out.println("--------");
+        for (String output: outputs) {
+            System.out.println("==" + output);
+        }
+        System.out.println("--------");
+        //System.out.println(numAttrs);
+        System.out.println("lol "+index);
+        System.out.println(numAttrs);
+        featuresList.add(numAttrs);
+        // System.out.println(eElement.getFirstChild().getTextContent())
+
     }
 
     public void removeConstraint(int i) {
@@ -875,7 +983,7 @@ public class Model extends Observable {
 //        featureModelConstraintsString = new ArrayList<String>();
 //        coreFeatures = new ArrayList<String>();
 //        deadFeatures = new ArrayList<String>();
-   //     StateChart sc = new XMLStatechart(inFile, XMLStatechart.USE_VARIABLE_NAME_AS_ID);
+        //     StateChart sc = new XMLStatechart(inFile, XMLStatechart.USE_VARIABLE_NAME_AS_ID);
         //           sc.loadModel();
         // ReasoningWithSAT reasonerSAT = new FMReasoningWithSAT(solverName, sc, SAT_TIMEOUT);
         //BufferedReader br = new BufferedReader(new InputStreamReader(fis));
@@ -890,7 +998,7 @@ public class Model extends Observable {
 //        solverIterator = null;
         statechartModelName = new File(inFile).getName();
         statechartModelName = statechartModelName.substring(0, statechartModelName.lastIndexOf("."));
-                   // FileExtension = statechartModelName.getExtension
+        // FileExtension = statechartModelName.getExtension
 
         int i = inFile.lastIndexOf('.');
         if (i > 0) {

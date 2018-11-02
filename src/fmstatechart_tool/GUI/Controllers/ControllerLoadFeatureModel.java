@@ -36,6 +36,7 @@ public class ControllerLoadFeatureModel extends AbstractAction {
                 public void run() {
                     try {
                         model.loadFeatureModel(featureModelPath, featureModelPath.toLowerCase().endsWith("xml") ? Model.FeatureModelFormat.SPLOT: Model.FeatureModelFormat.SPLOT);
+//                        model.loadFeatureModel2(featureModelPath);
                      
                     } catch (Exception ex) {
                         Logger.getLogger(ControllerLoadFeatureModel.class.getName()).log(Level.SEVERE, null, ex);

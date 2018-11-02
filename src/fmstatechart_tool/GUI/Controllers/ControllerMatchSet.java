@@ -31,8 +31,12 @@ public class ControllerMatchSet extends AbstractAction {
 
         final Thread t = new Thread(new Runnable() {
             public void run() {
-
-                
+                System.out.println("inside run();");
+                try {
+                    model.loadMatchSet(view);
+                } catch (Exception ex) {
+                    Logger.getLogger(ControllerMatchSet.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         });
 
