@@ -96,12 +96,15 @@ public class Model extends Observable {
     private ISolver solverIterator;
     private List<Integer> featuresIntList;
     private List<Integer> StateIntList;
-    private static List<String> featuresList;
+    static List<String> featuresList;
+    static List<String> featuresListMatch;
     static List<String> StateChartList;
+    static List<String> StateChartListMatch;
     private Map<String, Integer> namesToFeaturesInt;
     private List<String> featureModelConstraints;
     private List<String> featureModelConstraintsString;
     static List<String> TransitionList;
+    static List<String> TransitionListMatch;
     private FeatureModelFormat featureModelFormat;
     private stateChartFormat statechartFormat;
 //    private Format Format;
@@ -132,11 +135,14 @@ public class Model extends Observable {
         featuresIntList = new ArrayList<Integer>();
         StateIntList = new ArrayList<Integer>();
         featuresList = new ArrayList<String>();
+        featuresListMatch = new ArrayList<String>();
         StateChartList = new ArrayList<String>();
+        StateChartListMatch = new ArrayList<String>();
         namesToFeaturesInt = new HashMap<String, Integer>();
         featureModelConstraints = new ArrayList<String>();
         featureModelConstraintsString = new ArrayList<String>();
         TransitionList = new ArrayList<String>();
+        TransitionListMatch = new ArrayList<String>();
         coreFeatures = new ArrayList<String>();
         deadFeatures = new ArrayList<String>();
         state = new ArrayList<String>();
@@ -418,6 +424,26 @@ public class Model extends Observable {
         setChanged();
         notifyObservers();
     }
+    
+    private void cleanAll() {
+        featuresListMatch.clear();
+        StateChartListMatch.clear();
+        TransitionListMatch.clear();
+//        featuresIntList.clear();
+//        featuresList.clear();
+//        StateChartList.clear();
+//        TransitionList.clear();
+//        StateIntList.clear();
+//        namesToFeaturesInt.clear();
+//        featureModelConstraints.clear();
+//        featureModelConstraintsString.clear();
+//        coreFeatures.clear();
+//        deadFeatures.clear();
+//        state.clear();
+//        transition.clear();
+        setChanged();
+        notifyObservers();
+    }
 
     /**
      * Returns the core features of the feature model.
@@ -514,6 +540,7 @@ public class Model extends Observable {
      * @throws Exception if the file format is incorrect.
      */
     public void loadFeatureModel(String filePath, FeatureModelFormat format) throws Exception {
+        System.out.println("Load FM");
         setRunning(true);
         setIndeterminate(true);
         setGlobalAction(GLOBAL_ACTION_LOAD_FM);
@@ -536,6 +563,7 @@ public class Model extends Observable {
                 for (int i = 0; i < features.length; i++) {
                     String featureName = features[i];
                     featuresList.add(featureName);
+                    featuresListMatch.add(featureName);
                     int n = i + 1;
                     featuresIntList.add(n);
                     namesToFeaturesInt.put(featureName, n);
@@ -744,9 +772,22 @@ public class Model extends Observable {
                 ex.printStackTrace();
             }
         }
+        cleanAll();
         setRunning(false);
         setChanged();
-        notifyObservers(featureModelConstraints);
+        notifyObservers(this);
+    }
+    
+    public static void setMatchList(String element, String type, List<String> list) {
+        for (String elementList: list) {
+            if (
+                    (element.toLowerCase().contains(elementList.toLowerCase())) 
+                    || 
+                    (elementList.toLowerCase().contains(element.toLowerCase()))
+                ){
+                featuresList.add(elementList + " - " + type);
+            }
+        }
     }
 
     public static void listAllFeatures(Element eElement, int index) {
@@ -758,13 +799,29 @@ public class Model extends Observable {
         //System.out.println(carsNode);
         // get the number of nodes in this map
         String numAttrs = carsNode.getNodeValue();
-        String[] outputs = numAttrs.split(":");
+        String[] outputs1 = numAttrs.split(":");
         System.out.println("--------");
-        if (outputs.length > 1) {
-            for (int i = 1; i < outputs.length; i++) {
-                String output = outputs[i];
-                System.out.println("==" + output);
-                featuresList.add(output);
+        if (outputs1.length > 1) {
+            for (int i = 1; i < outputs1.length; i++) {
+                String output = "-";
+                try {
+                    String output1 = outputs1[i];
+                    String[] outputs2 = output1.split("\\(");
+                    String output2 = (null != outputs2[0]) ? (outputs2[0]) : ("-");
+                    String[] outputs3 = output2.split("r |m |g |o | ");
+                    output = (null != outputs3[1]) ? (outputs3[1]) : ("-");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    output = "-";
+                }
+                System.out.println("i:"+i);
+                System.out.println(output);
+                System.out.println(StateChartListMatch);
+                System.out.println(TransitionListMatch);
+                System.out.println("----");
+                
+                setMatchList(output, "STATE", StateChartListMatch);
+                setMatchList(output, "TRANSITION", TransitionListMatch);
             }
         }
         System.out.println("--------");
@@ -773,7 +830,6 @@ public class Model extends Observable {
 //        System.out.println(numAttrs);
 //        featuresList.add(numAttrs);
         // System.out.println(eElement.getFirstChild().getTextContent())
-
     }
 
     public void removeConstraint(int i) {
@@ -978,11 +1034,12 @@ public class Model extends Observable {
      * @throws Exception if an error occurs while reading the products file.
      */
     public void loadstatechart(String inFile) throws Exception {
+        System.out.println("Load UML");
         setRunning(true);
         setIndeterminate(true);
         setGlobalAction(GLOBAL_ACTION_LOAD_PRODUCTS);
         // setCurrentAction(CURRENT_ACTION_LOAD_CONSTRAINTS);
-        // clean();
+        clean();
 
 //        featuresIntList = new ArrayList<Integer>();
 //        featuresList = new ArrayList<String>();
@@ -1080,7 +1137,8 @@ public class Model extends Observable {
             if (attrName.equals("name")) {
 
                 StateChartList.add(attrValue);
-                System.out.println(StateChartList);
+                StateChartListMatch.add(attrValue);
+//                System.out.println(StateChartList);
             }
 
         }
@@ -1102,6 +1160,7 @@ public class Model extends Observable {
             if (attrName.equals("name")) {
                 // System.out.println(attrValue);
                 TransitionList.add(attrValue);
+                TransitionListMatch.add(attrValue);
                 // System.out.println(TransitionList);
             }
 
