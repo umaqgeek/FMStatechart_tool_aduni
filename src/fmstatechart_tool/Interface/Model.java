@@ -659,7 +659,7 @@ public class Model extends Observable {
         setChanged();
         notifyObservers(featureModelConstraints);
     }
-    
+
     public void loadFeatureModel2(String inFile1) throws Exception {
         setRunning(true);
         setIndeterminate(true);
@@ -679,7 +679,7 @@ public class Model extends Observable {
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
             Document doc = dBuilder.parse(inFile1);
             NodeList nList = doc.getElementsByTagName("feature_tree");
-        //  NodeList n = nList.item(0).getFirstChild().getTextContent();
+            //  NodeList n = nList.item(0).getFirstChild().getTextContent();
             // int num = nList.getLength();
             for (int temp = 0; temp < nList.getLength(); temp++) {
                 Node NNODE = nList.item(temp);
@@ -688,7 +688,7 @@ public class Model extends Observable {
                     Element eElement = (Element) NNODE;
                       //System.out.println(eElement.getFirstChild().getTextContent());
 
-		//System.out.println(NNODE.getFirstChild().getTextContent());
+                    //System.out.println(NNODE.getFirstChild().getTextContent());
                     //NodeList nListm = nListm.item(0).getFirstChild().getTextContent();
                     //    Element node3 = (Element) nList.item(0);
                     listAllFeatures(eElement, temp);
@@ -705,6 +705,7 @@ public class Model extends Observable {
     }
 
     public void loadMatchSet(Home view) {
+        clean();
         System.out.println("inside loadMatchSet");
         File selected = view.displayFileChooser(Home.FileType.FEATURE_MODEL);
         if (selected != null) {
@@ -717,7 +718,7 @@ public class Model extends Observable {
                 DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
                 Document doc = dBuilder.parse(inFile1);
                 NodeList nList = doc.getElementsByTagName("feature_tree");
-            //  NodeList n = nList.item(0).getFirstChild().getTextContent();
+                //  NodeList n = nList.item(0).getFirstChild().getTextContent();
                 // int num = nList.getLength();
                 System.out.println("before loop");
                 for (int temp = 0; temp < nList.getLength(); temp++) {
@@ -727,7 +728,7 @@ public class Model extends Observable {
                         Element eElement = (Element) NNODE;
                       //System.out.println(eElement.getFirstChild().getTextContent());
 
-                    //System.out.println(NNODE.getFirstChild().getTextContent());
+                        //System.out.println(NNODE.getFirstChild().getTextContent());
                         //NodeList nListm = nListm.item(0).getFirstChild().getTextContent();
                         //    Element node3 = (Element) nList.item(0);
                         listAllFeatures(eElement, temp);
@@ -743,8 +744,11 @@ public class Model extends Observable {
                 ex.printStackTrace();
             }
         }
+        setRunning(false);
+        setChanged();
+        notifyObservers(featureModelConstraints);
     }
-    
+
     public static void listAllFeatures(Element eElement, int index) {
         // System.out.println("hh " + element.getNodeName());
         NamedNodeMap attributes = eElement.getAttributes();
@@ -756,14 +760,18 @@ public class Model extends Observable {
         String numAttrs = carsNode.getNodeValue();
         String[] outputs = numAttrs.split(":");
         System.out.println("--------");
-        for (String output: outputs) {
-            System.out.println("==" + output);
+        if (outputs.length > 1) {
+            for (int i = 1; i < outputs.length; i++) {
+                String output = outputs[i];
+                System.out.println("==" + output);
+                featuresList.add(output);
+            }
         }
         System.out.println("--------");
         //System.out.println(numAttrs);
-        System.out.println("lol "+index);
-        System.out.println(numAttrs);
-        featuresList.add(numAttrs);
+//        System.out.println("lol " + index);
+//        System.out.println(numAttrs);
+//        featuresList.add(numAttrs);
         // System.out.println(eElement.getFirstChild().getTextContent())
 
     }
@@ -973,7 +981,7 @@ public class Model extends Observable {
         setRunning(true);
         setIndeterminate(true);
         setGlobalAction(GLOBAL_ACTION_LOAD_PRODUCTS);
-       // setCurrentAction(CURRENT_ACTION_LOAD_CONSTRAINTS);
+        // setCurrentAction(CURRENT_ACTION_LOAD_CONSTRAINTS);
         // clean();
 
 //        featuresIntList = new ArrayList<Integer>();

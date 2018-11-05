@@ -41,6 +41,7 @@ public class controllerloadStatechart extends AbstractAction{
                         model.loadstatechart(productsPath);
                         
                     } catch (Exception ex) {
+                        ex.printStackTrace();
                        model.setRunning(false);
                         HOME.displayError("Error while loading products", "Incorrect products file");
                     }
